@@ -1,0 +1,228 @@
+\documentclass{article}
+
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[letterpaper]{geometry}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+%% V5 (9 Nov 2026): information integration direction agreed with Angela Schwering on 9 Nov 2026.
+%% Built on her outline (email of 6 Nov 2026, Steps 1-5) and the literature scan of 9 Nov 2026.
+%% Reuses the problem context of V3 Lite and the requirements framing of V2.
+%% Lines starting with "%% OPEN:" are points still to settle with Angela or DRZ.
+
+\title{Task-Driven Integration of Drone, Sensor and Geodata Streams across Egocentric and Allocentric Views for Decision Support in Emergency Response}
+
+\author{Hector Valdes}
+\date{November 2026}
+
+\begin{document}
+
+\maketitle
+
+Keywords:
+unmanned aerial vehicles, information integration, egocentric and allocentric views, georeferencing, decision support, situation awareness, emergency response.
+
+%% ------------------------------------------------------------------
+\section{Problem Definition}
+Emergency response to medium- and large-scale incidents such as fires, floods, and earthquakes requires critical decisions under time pressure despite incomplete and uncertain information \cite{kruijff2021}.
+First responders increasingly deploy robots in these situations, most often unmanned aerial vehicles (UAVs) \cite{kruijff2021, delmerico2019}.
+During the 2021 flood in Erftstadt and the 2022 residential fire in Essen, Germany, for example, the task force of the German Rescue Robotics Center (DRZ) operated several UAVs simultaneously \cite{surmann2024}.
+UAV operations are integrated into the incident command structure: a commander assigns tasks and operating areas, crews carry them out, and the plan is revised as new information arrives \cite{murphy2014disaster, kruijff2021}.
+
+These deployments produce several streams of information at once: live video from the UAVs, sensor data such as thermal images, and existing geodata such as maps and 3D models of the site.
+Each stream is shown in its own frame of reference.
+Drone video is \emph{egocentric}: it shows the scene from the moving camera.
+Maps and 3D models are \emph{allocentric}: they show the site from a fixed, world-aligned viewpoint.
+The egocentric view narrows the field of attention and makes it hard to judge where an observed object lies relative to the site \cite{thomas2001, hollands2011}, while the map lacks the detail and timeliness of the live image.
+A person spotted in the video, a fire hotspot in a thermal image, or a change in flood level therefore has to be transferred mentally from one view to the other before it can support a decision.
+
+Different members of the response team need different parts of this information for different decisions.
+A commander at the strategic level needs an overview of where people and hazards are; a section leader or UAV crew at the tactical level needs the detail to act on a specific location \cite{murphy2014disaster, kruijff2021}.
+Field deployments of the DRZ accordingly called for richer representations of robot data, such as trajectories, timelines, and dynamic projections \cite{surmann2024}, and stakeholders of multi-UAV platforms for first responders asked for faster situation assessment from UAV data \cite{friedrich2020respondrone}.
+
+This thesis addresses two interrelated problems:
+(1) integrating heterogeneous data streams in real time so that information found in one view (e.g.\ a detected person in the drone video) appears in the other views where it is needed, and
+(2) determining which view, or which combination of linked views, best supports which decision task of which member of the response team.
+
+%% ------------------------------------------------------------------
+\section{Knowledge Gap}
+
+\subsection{Projection between Drone Video and Map}
+Projecting information between the drone video and the map is largely solved.
+Persons detected in UAV images can be geolocated by ray casting onto a terrain model with sub-metre error \cite{paulin2023raycast}, and objects selected in RTK drone video can be placed on a digital elevation model with an error below 5\,m from more than 100\,m altitude \cite{carvalho2025geolocation}.
+Projection also works without GPS metadata, using visual features of the video \cite{nath2022gpsdenied}.
+In the opposite direction, points of interest from a map have been projected into UAV imagery \cite{crowley2014aerialar}, and recent interfaces combine target geolocation with a live, map-aligned mosaic \cite{ashry2026uspi}.
+These methods are therefore treated as building blocks in this thesis, not as its contribution.
+
+\subsection{Task-Driven Integration for Decision Tasks}
+Existing systems share geotagged information between remote and on-site operators through augmented reality \cite{nalamothu2024vizcom}, or collect data from several UAVs in a common cloud platform for first responders \cite{friedrich2022respondrone}.
+They make information available, but do not decide which fused information each role needs for which task, nor in which view it should appear.
+A review of decision support systems for search and rescue identifies the real-time integration of heterogeneous streaming data as an open challenge \cite{soularidis2024semantic}.
+
+\subsection{Which View Supports Which Decision}
+Egocentric and exocentric views have been compared mainly for controlling and navigating robots.
+Exocentric or mixed views improved performance in aerial telemanipulation \cite{young2021interface}, exocentric cues improved team performance in search and rescue wayfinding \cite{xu2024arsar}, and viewpoint and immersion were compared with professional first responders supporting a ground robot \cite{pretolesi2025hri}.
+The effect of the view depends on the task: when supervising automated motion, the egocentric view supported better takeover decisions \cite{larson2026viewpoint}.
+The closest work on decision support combined GIS layers, UAV imagery, and virtual reality for fire-service incident commanders, and found that the usefulness of each source differed between scenarios; however, it relied on perceived measures and had no control group \cite{hancko2026c2}.
+
+\subsection{Summary}
+No study was found that integrates drone video, sensor data, and geodata in real time across egocentric and allocentric views according to the decision tasks of first responders, and that measures objectively which view configuration supports which task.
+It is therefore unknown whether linking events across views improves the correctness and speed of decisions compared with separate views, and whether the best view differs between tasks and between levels of the command hierarchy.
+
+%% ------------------------------------------------------------------
+\section{Objective}
+The objective of this thesis is to identify the information requirements of first responders' decision tasks, and to design, implement, and evaluate a system that integrates drone, sensor, and geodata streams in real time across egocentric and allocentric views to support these tasks.
+
+The system extracts events from the data streams, such as persons detected in the drone video, fire hotspots in thermal data, and changes such as rising or falling water levels, and georeferences them with existing methods.
+Each event is then shown in every view where it is needed: a person found in the video is highlighted on the map, and map information such as buildings, access routes, or hazard zones is overlaid on the video.
+Which events appear in which view, and for which role, follows from the requirements identified with first responders.
+
+\textbf{Contribution.}
+Georeferencing drone data is solved; knowing which fused information to show in which perspective for which decision is not.
+This thesis builds a real-time cross-view integration system driven by first responders' decision tasks, and measures objectively which perspective supports which emergency response task.
+
+%% ------------------------------------------------------------------
+\section{Research Questions}
+\textbf{Main research question:} How can fused drone, sensor and geodata streams be integrated across egocentric and allocentric views in real time to support first aiders' decision tasks?
+
+\begin{enumerate}[label=\textbf{RQ\arabic*}]
+  \item Which decision tasks, at which hierarchy levels, require which information, and which data streams provide it?
+  \item What system architecture links events (e.g.\ detected persons, hotspots, changes) across views in real time, building on existing georeferencing methods?
+  \item How accurate and timely is the integration (projection error, detection-to-display delay, update rate)?
+  \item Which view configuration yields correct and fast decisions for which task, measured by correctness, time and workload?
+\end{enumerate}
+
+%% ------------------------------------------------------------------
+\section{Methodology}
+The methodology follows five steps, each answering one or more research questions.
+
+\subsection{Step 1: Requirement Analysis (RQ1)}
+The decision process of first responders is analysed through the literature \cite{murphy2014disaster, kruijff2021, surmann2024} and through interviews with practitioners, arranged in cooperation with the DRZ.
+The analysis identifies the hierarchy levels involved, the decision tasks at each level with their subtasks and the relations between them, and the information each task requires.
+
+Requirements are written as in industrial software development, from high-level to low-level requirements.
+They are grouped by role, and each role has three subsections:
+\begin{description}[style=nextline]
+  \item[Information requirements] What the role needs to know for its decisions (e.g.\ location of persons, extent of a fire, change in water level).
+  \item[Visualization requirements] How and in which view this information must be shown (e.g.\ on the map for overview, in the video for confirmation).
+  \item[Integration requirements] Which data streams must be combined, and how quickly, to provide the information.
+\end{description}
+Each requirement receives an identifier, so that it can be traced to the system design (Step 3) and the evaluation (Steps 4 and 5).
+Table~\ref{tab:req-template} shows the intended structure.
+
+\begin{table}[h]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.2cm}@{}}
+\toprule
+\textbf{ID} & \textbf{Level} & \textbf{Requirement (example)} & \textbf{Traced to} \\
+\midrule
+C-INF-01 & High & The commander knows the location of all detected persons on the site. & Task T1 \\
+C-INF-01.1 & Low & Each detected person is shown on the map within 2\,s of detection, with a position error below 5\,m. & RQ2, RQ3 \\
+C-VIS-01 & High & Detected persons are visible on the map without opening the drone video. & RQ4 \\
+C-INT-01 & High & Person detections from the drone video are georeferenced onto the map. & RQ2 \\
+\bottomrule
+\end{tabularx}
+\caption{Structure of the requirements list (C = commander; INF, VIS, INT = information, visualization, integration). The values are placeholders until Step 1 is complete.}
+\label{tab:req-template}
+\end{table}
+
+%% OPEN: Which roles and hierarchy levels to model (e.g. commander at the strategic level, section leader and UAV crew at the tactical level) is decided in Step 1 together with the DRZ.
+
+\subsection{Step 2: Information Sources and Set-Up (RQ1)}
+Based on the requirements, a fixed set-up of information sources is chosen for the rest of the thesis.
+The candidate sources are UAVs with RGB and thermal cameras, ground robots, existing geodata (maps, digital elevation models, 3D building models), and sensor data.
+The number of UAVs is not essential to the integration problem; one or two UAVs are assumed.
+
+%% OPEN: Simulation-first in Unity (reusing assets from Angela's project) vs. recorded drone footage and geodata from DRZ deployments. A hybrid is possible: simulation for the user study, recorded data for the technical evaluation.
+
+\subsection{Step 3: Integration System (RQ2)}
+The system links the data streams in a pipeline:
+\begin{enumerate}
+  \item \textbf{Ingest:} video, telemetry (position, attitude, camera parameters), sensor data, and geodata enter the system with timestamps.
+  \item \textbf{Event extraction:} existing detectors find persons in the video, threshold-based detection finds hotspots in thermal data, and change detection compares successive observations (e.g.\ water level).
+  \item \textbf{Georeferencing:} events are projected from image coordinates to world coordinates by ray casting onto the terrain or 3D model \cite{paulin2023raycast, carvalho2025geolocation}.
+  \item \textbf{Event store:} georeferenced events are kept in a common spatio-temporal model with their source, time, and confidence.
+  \item \textbf{Cross-view rendering:} each event is rendered in the allocentric views (2D map, 3D model) and projected back into the egocentric video of any UAV whose camera currently sees its location; map features are overlaid on the video in the same way.
+\end{enumerate}
+Which events are shown in which view and for which role is configured from the requirements of Step 1.
+
+\subsection{Step 4: Quality Assessment (RQ3)}
+The technical quality of the integration is measured independently of users:
+projection error of georeferenced events against ground truth, delay from detection to display in each view, update rate, and the share of events correctly shown in the views required by the task definitions.
+In simulation, the ground truth is known exactly; with recorded data, reference positions are needed.
+
+\subsection{Step 5: Evaluation of Decision Support (RQ4)}
+A user study compares view configurations on the decision tasks defined in Step 1, for example locating persons, assessing fire hotspots, and judging changes in a flood.
+\begin{itemize}
+  \item \textbf{Conditions (within subjects, counterbalanced):} egocentric only (drone video), allocentric only (map/3D model), and linked views with cross-view integration.
+  \item \textbf{Measures:} decision correctness, decision time, and workload (NASA-TLX \cite{hart1988}); situation awareness \cite{endsley1995} as a secondary measure.
+  \item \textbf{Analysis:} the effect of the view configuration is analysed per task, to show which view supports which task and whether this differs between roles.
+\end{itemize}
+
+%% OPEN: Participants. Practitioners via DRZ would be ideal; students with a short training are the fallback. Number of participants and ethics approval to be agreed with Angela.
+
+%% ------------------------------------------------------------------
+\section{Work Plan}
+
+The thesis is planned for 26 weeks, including two buffer weeks. Writing runs in parallel with development so that the final weeks are reserved for results, discussion, and revision.
+
+\begin{table}[h]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.2cm}@{}}
+\toprule
+\textbf{Weeks} & \textbf{Phase} & \textbf{Tasks} & \textbf{Milestone} \\
+\midrule
+1-4 & Requirements & Literature on decision processes; interviews with practitioners via DRZ; task model; requirements list by role (information, visualization, integration); draft study design; submit ethics application & Requirements agreed with supervisor; ethics submitted \\
+5-6 & Set-up & Choose information sources; prepare scene, geodata, and video or simulation; define tasks for the evaluation & Set-up fixed \\
+7-12 & Integration system & Ingest and event store; event extraction (persons, hotspots, change); georeferencing; cross-view rendering in map, 3D model, and video; role-based configuration; draft system chapter & Feature freeze (week 12) \\
+13 & Buffer & Bug fixing and catch-up & -- \\
+14-16 & Evaluation preparation & Technical evaluation (projection error, delay, update rate); baseline conditions; scripted scenarios; 2-3 pilot sessions; recruitment; draft methods chapter & Technical results; ethics approval; study ready \\
+17-20 & User study & Sessions with participants; data cleaning in parallel & Data collection complete \\
+21-22 & Analysis & Statistical analysis of correctness, time, and workload per task and view configuration & Results available \\
+23-25 & Writing & Results, discussion, and conclusion; full draft to supervisor in week 23; revision based on feedback & Full draft (week 23) \\
+26 & Buffer & Final formatting and submission & Thesis submitted \\
+\bottomrule
+\end{tabularx}
+\caption{Work plan for the 26-week thesis.}
+\label{tab:workplan}
+\end{table}
+
+%% ------------------------------------------------------------------
+\section{Scope and Delimitations}
+
+\subsection{In Scope}
+\begin{description}[style=nextline]
+  \item[Requirements] Requirements of first responders for two to three decision tasks, at the hierarchy levels identified in Step 1, grouped by role.
+  \item[Set-up] One incident scenario with one or two UAVs (RGB and thermal), existing geodata, and one additional sensor stream.
+  \item[Events] Detected persons, fire hotspots, and changes such as water level, extracted with existing detectors and simple thresholds.
+  \item[Views] Egocentric drone video and allocentric map and 3D model, linked in both directions.
+  \item[Evaluation] Technical evaluation of projection error, delay, and update rate; user study comparing view configurations on the defined tasks.
+\end{description}
+
+\subsection{Out of Scope}
+\begin{itemize}
+  \item New georeferencing, detection, or computer vision methods; existing methods are reused.
+  \item Multi-drone swarms and autonomous mission planning.
+  \item Natural-language or LLM-based assistance (see Future Work).
+  \item Network robustness and communication infrastructure at the incident site.
+  \item Live 3D reconstruction of the site; a pre-existing model is assumed.
+  \item Field deployment with real incidents.
+\end{itemize}
+
+%% ------------------------------------------------------------------
+\section{Future Work}
+A natural extension, outside the scope of this thesis, is a multi-role interface in which a planner based on a large language model turns a coordinator's spoken instructions into a mission graph of drone API calls for autonomous and piloted UAVs, presented as an editable 3D plan before execution.
+The integration system of this thesis would provide the shared views in which such plans are previewed and monitored.
+
+%% Bibliography
+\newpage
+\bibliographystyle{unsrtnat}
+\bibliography{ReferencesV5}
+
+\end{document}

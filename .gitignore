@@ -1,5 +1,5 @@
 build/
-
+references/
 # LaTeX files that can still appear beside the sources
 *.aux
 *.bbl
