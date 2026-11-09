@@ -1,0 +1,10 @@
+build/
+
+# LaTeX files that can still appear beside the sources
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz

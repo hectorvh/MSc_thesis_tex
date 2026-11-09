@@ -1,0 +1,78 @@
+# Context handoff — Hector's master's thesis (as of 20 Oct 2026)
+
+## Who I am
+Hector, MSc Geoinformatics & Spatial Data Science, University of Münster (ifgi).
+Background: mechanical engineering (UAEMéx), ~5 years software development, UAV research experience.
+I see myself as an engineer, not a psychologist: I want a system-building thesis plus an evaluation, with a real knowledge gap.
+
+## Supervision and topic
+- Supervisor: Prof. Angela Schwering, on her topic "3D Perspective Taking in Drone Navigation"
+  (Unity-based, three variants). Chris Kray agreed to the switch since the topic is hers.
+- I'm focusing on Variant/Topic 3 (multi-user coordination, shared situational awareness),
+  from a technical/engineering angle grounded in real emergency-response needs (Feuerwehr context).
+- Last meeting (15 Oct): Angela sent her proposal doc. Her open question is which data resources
+  are available and can be integrated. The proposal is still flexible.
+
+## Current thesis idea (V4, 18 Oct)
+A Unity-based simulated indoor rescue UAV plus a ground-station interface with:
+- separate mission-specialist and teleoperator views
+- multi-user awareness cues
+- collision-awareness cues for the teleoperator (instead of full autonomous avoidance)
+- autonomous return to a point of interest and reproduction of the same camera view,
+  without external infrastructure
+Research question: does this reduce errors and workload in simulated emergency-response missions?
+Logging: runs, duration, altitudes, autonomy level, team size and roles.
+The approach is simulation-first, with an optional hardware stage (see below).
+I'm reading Robin Murphy's "Disaster Robotics" to ground the requirements.
+
+Open feedback to resolve:
+- Four interface features means too many independent variables. Narrow to one manipulated
+  variable, e.g. a dedicated specialist view vs. a shared view.
+- Choose the core contribution:
+  (a) the specialist-view interface, which is an HRI result, or
+  (b) drift-tolerant return-to-viewpoint, which is an engineering result and fits me better.
+- Inject simulated odometry drift to justify the "no external infrastructure" claim.
+- Separate trial descriptors (runs, duration, altitude) from the dependent measures
+  (errors, NASA-TLX, SAGAT, task time).
+- Candidate positioning approach for real hardware: VIO plus loop closure, anchored at the entry point.
+
+## Optional hardware side project: low-cost indoor rescue drone
+- Research prototype with shared/assisted autonomy plus teleoperation; ≤ €150 per airborne unit.
+- Two prototypes: A = ESP32 brushed (keep it, possibly as a hardware-in-the-loop bridge to Unity),
+  B = brushless whoop.
+- Scope: static indoor environments only, no GPS, no cameras installed in the room.
+- Sensing: downward camera + IR distance sensor fused with the IMU for position and altitude hold.
+  Wants solutions for multipath. Considering multizone ToF sensors (VL53L5CX/VL53L7CX).
+- Interface: analog FPV video, position and trajectory logging, online screenshots.
+- Mapping: 2.5D on the ground station (online or offline). LingBot-Map is an optional dense layer.
+- Use existing flight-controller firmware (Crazyflie stack / INAV) rather than writing my own estimator.
+
+## Side ideas still on the table (not core)
+- 4D radar for perception through smoke. Unity can't simulate it realistically,
+  so it would need real datasets such as View-of-Delft or K-Radar.
+- Apiculture as a second, domain-agnostic validation scenario
+  (e.g. locating hornet nests or bee swarms in tree canopies).
+- Keep the architecture domain-agnostic. "Swap test": changing the scenario should only touch
+  the scenario module and the introduction.
+
+## Earlier history (abandoned or absorbed)
+Kray/EtherMap collaborative 3DGS mission-planning interface → V2 heterogeneous UAV+UGV 4D
+reservation volumes → v2lite (multi-UAV deconfliction) → Kray judged UAV simulation-only weak
+(8 Oct) → brief Risse/insect-tracking exploration → now Angela's topic.
+
+## Career goals shaping the thesis
+- Main next step: funded TU Dublin MPhil "AGV with GPR Sensor Fusion … ML and DSP"
+  (Dr. Mayank Parmar, deadline 31 Oct 2026).
+- Longer-term: fleet UAV operations, autonomous driving, spatial-computing companies (e.g. Unisphere),
+  or a CS PhD.
+
+## Preferences
+English-only references, only non-redundant ones, no preprints in the proposal.
+Two-sentence contribution required. No real drone pilots available as participants.
+Hardware I own: FPV drones, a Raspberry Pi, an FPGA.
+
+## Pending next steps
+1. Narrow V4 to one core contribution and one manipulated variable.
+2. Do a data inventory for Angela (her Unity assets, Feuerwehr contacts, NRW open geodata, DRZ datasets).
+3. Send Angela a follow-up email about data, partner access, and a possible requirements interview.
+4. Run a literature scan (Consensus prompts already drafted; the free tier resets on the 1st).

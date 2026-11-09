@@ -1,0 +1,178 @@
+\documentclass{article}
+
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[letterpaper]{geometry}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+\title{A Standards-Based Collaborative 3D Interface for Planning and Coordinating Multi-Operator UAV and UGV Missions in Emergency Response}
+
+\author{Hector Valdes}
+\date{October 2026}
+
+\begin{document}
+
+\maketitle
+
+Keywords:
+ground and aerial robots, human-robot interaction, public safety, rescue robotics.
+
+%% ------------------------------------------------------------------
+\section{Problem Definition}
+
+\subsection{Context of Emergency Response}
+Emergency response to medium- and large-scale incidents such as fires, floods, and earthquakes requires critical decisions under time pressure despite incomplete and uncertain information \cite{kruijff2021}.
+First responders increasingly employ robots in these situations, most often unmanned aerial vehicles (UAVs) and, less frequently, unmanned ground vehicles (UGVs) \cite{kruijff2021, delmerico2019}.
+A prominent example is the Notre-Dame de Paris fire of 15 April 2019, where the Paris Fire Brigade used commercial UAVs, including one with a thermal camera, to monitor the spread of the fire from the air, while a remotely piloted firefighting UGV entered the cathedral to deliver water to the burning interior \cite{nardi2019, peskoeyang2019}.
+In real deployments, these robots are operated along a spectrum ranging from direct teleoperation to semi-autonomous assistance functions, and each robot is typically assigned at least one dedicated human operator, often supported by additional roles such as safety officers or camera co-pilots \cite{surmann2024}.
+
+\subsection{Differences from Industrial Robotic Settings}
+Teleoperation under these conditions is mentally demanding and prone to operator error, which motivates greater robot autonomy \cite{kruijff2021}.
+However, unlike industrial settings, each emergency scenario is different and subject to unstructured terrain, variable lighting and weather, smoke, or collapsed structures \cite{kruijff2021}.
+This limits the reliability of full autonomy and keeps humans in the loop \cite{surmann2024, queralta2020}.
+Consequently, response teams deploy several UAVs and UGVs, primarily to carry out reconnaissance of the incident site and increase situation awareness \cite{kruijff2021}.
+Field deployments show that their operators must work together, for instance when one robot provides an external view to guide another through a damaged structure \cite{surmann2024}.
+
+\subsection{Requirements Identified by First Responders}
+Within the A-DRZ project, the German Rescue Robotics Center (DRZ) addresses the following requirements for robot-assisted emergency response, identified together with first responders \cite{kruijff2021}:
+\begin{enumerate}[label=\textbf{R\arabic*}]
+  \item Adaptation of the operational capabilities of robotic platforms;
+  \item Robust network connectivity;
+  \item Autonomous assistance functions facilitating robot control;
+  \item Improved situation awareness for strategic and tactical mission planning;
+  \item Integration of human-robot teams into the first responders' mission command structure.
+\end{enumerate}
+R1 concerns the robotic platforms themselves and is outside the scope of an interface, while network connectivity (R2) is addressed at the link level by multi-connectivity solutions such as SKATES \cite{kruijff2021}.
+Three problems nevertheless persist between these requirements and current practice: the lack of a common representation of where robots with different levels of autonomy will be (R3), limited situation awareness from egocentric views (R4), and coordination between operators (R5).
+
+\subsubsection{Heterogeneous Autonomy (R3)}
+Response teams combine robots at different levels of autonomy: the DRZ has developed fully autonomous UAV flight in GNSS-denied environments alongside UGVs operated with sliding autonomy \cite{kruijff2021}, while in real deployments most robots are still teleoperated \cite{surmann2024}.
+The future path of an autonomous robot is known in advance, whereas a teleoperated robot follows its assigned route only approximately, so its future position is known only within a region around that route.
+Interfaces such as the SAI show where robots are, but not where and when each robot will be, which is the trajectory and timeline information that field deployments call for \cite{surmann2024}.
+In UAS traffic management, such information is shared as operational intents: planned routes enclosed in space-time volumes, combined with conformance monitoring that detects when an aircraft leaves its volume \cite{astmf3548}.
+Space--time reservations are likewise used to coordinate agents in cooperative path planning \cite{silver2005}.
+
+\subsubsection{Situation Awareness (R4)}
+The DRZ developed a Situation Awareness Interface (SAI) that displays the mission on a 3D map backed by building models and robot sensor data, and allows responders to issue operational orders to robotic units and monitor their execution \cite{kruijff2021}.
+Field deployments, however, identified the need to extend the SAI with map representations of trajectories and timeline calculations, integration of data from multiple sources, and dynamic projections for changing situations \cite{surmann2024}.
+
+Operators perceive the scene mainly through the onboard camera of their own robot.
+This egocentric view supports local control but narrows attention and makes it difficult to judge where the robot is and what lies beyond the frame \cite{thomas2001, hollands2011}.
+Exocentric views, which use a frame of reference independent of any single robot, better support global spatial awareness \cite{pavlovic2009}, and immersive 3D multi-robot interfaces have improved operator situation awareness \cite{roldan2017}.
+Studies of multi-operator, multi-robot teams show that how operators share robots and attention affects performance and workload \cite{gao2012teamwork}; however, they focus on dividing robots between operators rather than on sharing where the robots will move.
+
+\subsubsection{Coordination Between Operators (R5)}
+Multi-operator control of robot teams requires not only access to the same mission information, but also shared situation awareness in a changing scene \cite{endsley2001team}.
+To divide the area, avoid conflicting movements, and hand over tasks, each operator needs to know where the other robots are, what they see, and what they are doing \cite{drury2003awareness}.
+The mission also changes during the operation: robot tasks must be reassigned \cite{kruijff2021}, and every operator must be aware of such changes.
+In current deployments, this awareness is built verbally and through ad hoc role assignment, and communication overhead adds workload in time-critical tasks \cite{surmann2024}.
+Since team organization affects performance and workload \cite{gao2012teamwork}, Surmann et al.\ call for explicit planning of command structures and role assignment in mission planning \cite{surmann2024}.
+When shared awareness breaks down, operators may duplicate or miss search areas and issue conflicting commands.
+Shared systems prevent conflicting interventions through concurrency control such as locking \cite{greenberg1994concurrency} and through control-sharing schemes that arbitrate who commands a robot \cite{music2017control}; however, these mechanisms govern who controls an object or robot, not whether the planned movements of different robots conflict.
+
+\subsubsection{Interoperability}
+Beyond the individual requirements, robots in a response team come from different manufacturers and research groups \cite{kruijff2021, surmann2024}, and field deployments call for the integration of data from multiple sources into the operational picture \cite{surmann2024}.
+Without common data formats, each new robot or interface requires a custom integration.
+Open geospatial standards exist for describing connected sensor systems \cite{ogc23001}, streaming large 3D scenes \cite{ogc3dtiles}, and encoding features whose geometry changes over time \cite{ogcmfjson}, and the first two have been combined in industry to stream live sensor data into 3D scenes \cite{georobotix2026}.
+
+%% ------------------------------------------------------------------
+\section{Knowledge Gap}
+Research on multi-operator, multi-robot teams examines how operators divide robots and attention \cite{gao2012teamwork}, but not how the planned movement of the robots, where and when they will be, is shared between operators.
+Locking and control-sharing schemes prevent conflicting commands to the same object or robot \cite{greenberg1994concurrency, music2017control}, but do not detect conflicts between the planned movements of different robots.
+In emergency response, the DRZ Situation Awareness Interface supports operational orders on a 3D map \cite{kruijff2021}, yet field deployments call for trajectory and timeline representations that it does not provide \cite{surmann2024}.
+
+Space-time volumes are used to deconflict aircraft in UAS traffic management \cite{astmf3548} and agents in cooperative path planning \cite{silver2005}, but these approaches target autonomous agents or individual pilots, not mixed teams of autonomous and teleoperated robots supervised jointly by a commander and several operators.
+No study was found that models the movement intent of both autonomous and teleoperated robots, in the air and on the ground, as 4D volumes in a shared interface for human operators, and keeps these volumes up to date when a commander changes the plan during a mission.
+Moreover, open geospatial standards describe connected systems, 3D scenes, and moving features \cite{ogc23001, ogc3dtiles, ogcmfjson}, but no study was found that uses them to encode the movement intent of robots in multi-operator supervision.
+
+%% ------------------------------------------------------------------
+\section{Objective}
+The objective of this thesis is to design, implement, and evaluate a web-based, standards-based collaborative 3D interface in which a mission commander and robot operators jointly plan and coordinate missions of heterogeneous UAVs and UGVs.
+
+The commander assigns each robot a route of 3D waypoints and defines hazard zones, both of which can be changed during the mission.
+Autonomous robots follow their route; operators of teleoperated robots are guided along it by the route projected into their onboard camera view.
+Internally, the system models the movement intent of each robot as a 4D (space--time) volume: a corridor with time windows for autonomous robots and a conformance volume around each route segment for teleoperated robots.
+These volumes are not rendered; they are used to detect conflicts between robots and with hazard zones, and to detect when a teleoperated robot leaves its route.
+Conflicts are communicated to all roles through the shared 3D view, the operators' camera views, and a shared mission timeline.
+
+The thesis contributes to requirements R3, R4, and R5: route guidance and conflict warnings that assist robot control (R3), a shared exocentric view and timeline of current and planned robot movement (R4), and role-based interaction between the mission commander and the operators (R5).
+In addition, it addresses interoperability by encoding robot state and movement intent with open geospatial standards.
+
+%% ------------------------------------------------------------------
+\section{Research Questions}
+\textbf{Main research question:} How can a standards-based collaborative 3D interface model the movement intent of mixed-autonomy UAV and UGV teams as 4D volumes, and how does this support multi-operator planning and coordination in emergency response?
+
+\begin{enumerate}[label=\textbf{RQ\arabic*}]
+  \item How can the movement intent of autonomous and teleoperated robots be modeled as 4D volumes and encoded with open geospatial standards?
+  \item How can conflicts between these volumes and with hazard zones be detected, kept up to date after plan changes during a mission, and communicated to the commander and the operators?
+  \item What system architecture, built on existing replicated-state libraries, keeps the shared scene, routes, volumes, and conflicts consistent across all roles in real time?
+  \item Compared with a shared 3D view showing only current robot positions, how does the proposed interface affect coordination conflicts, situation awareness, and workload in a simulated emergency response scenario?
+\end{enumerate}
+
+%% ------------------------------------------------------------------
+
+\section{Work Plan}
+
+The thesis is planned for 26 weeks, including two buffer weeks. Writing runs in parallel with development so that the final weeks are reserved for results, discussion, and revision.
+
+\begin{table}[h]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.2cm}@{}}
+\toprule
+\textbf{Weeks} & \textbf{Phase} & \textbf{Tasks} & \textbf{Milestone} \\
+\midrule
+1-3 & Foundations & Finalise literature review; define system requirements and architecture; prototype the data model (OGC Moving Features JSON, Connected Systems resources); prepare the 3D Tiles scene; draft study design; submit ethics application & Architecture and data model agreed with supervisors; ethics submitted \\
+4-8 & Core system & CesiumJS client; Yjs/WebSocket synchronisation; server-side robot simulation with kinematic models; teleoperation controls; commander and operator roles; simulated onboard camera view & Teleoperation usability check with 2-3 colleagues \\
+9-13 & Planning and conflicts & Routes and waypoint acceptance; guidance line in the camera view; 4D volumes; conflict detection with recomputation after edits; conformance monitoring; mission timeline; standards-based endpoints; draft system chapter & Feature freeze (week 13) \\
+14 & Buffer & Bug fixing and catch-up & -- \\
+15-17 & Evaluation preparation & Baseline condition; interaction logging; scripted scenario and commander script; technical evaluation (latency, detection time, convergence); 2-3 pilot sessions; finalise protocol; start recruitment; draft methods chapter & Technical results; ethics approval; study ready \\
+18-21 & User study & About 8 operator pairs (2 sessions per week, approx.\ 90 minutes each); data cleaning in parallel & Data collection complete \\
+22 & Analysis & Statistical analysis of conflicts, route deviations, SART, NASA-TLX, and completion time & Results available \\
+23-25 & Writing & Results, discussion, and conclusion; full draft to supervisors in week 23; revision based on feedback & Full draft (week 23) \\
+26 & Buffer & Final formatting and submission & Thesis submitted \\
+\bottomrule
+\end{tabularx}
+\caption{Work plan for the 26-week thesis.}
+\label{tab:workplan}
+\end{table}
+
+
+\section{Scope and Delimitations}
+
+\subsection{In Scope}
+\begin{description}[style=nextline]
+  \item[Scenario] One simulated incident site, provided as a static, pre-built 3D scene.
+  \item[Robots] Three simulated robots with simple kinematic models (maximum speed, climb rate; the UGV is constrained to the ground surface): one autonomous UAV, one teleoperated UAV, and one teleoperated UGV.
+  \item[Roles] One mission commander, who sets and edits routes and hazard zones during the mission, and two operators, each teleoperating one robot.
+  \item[Planned routes] The commander defines a route of 3D waypoints for every robot. Autonomous robots follow their route; teleoperated robots are guided along it by their operator. A waypoint counts as reached when the robot enters its acceptance radius, after which the next segment becomes active.
+  \item[4D volumes (not rendered)] Used for conflict detection only. Autonomous robots: a corridor around the planned trajectory with time windows derived from the planned speed. Teleoperated robots: a conformance volume around each route segment, occupied from the earliest arrival at maximum speed to the latest arrival at a minimum expected speed. Volumes are encoded with OGC Moving Features (JSON).
+  \item[Conflict detection] Overlap tests between volumes (robot-robot and robot-hazard zone), recomputed after every change to routes or hazard zones. A teleoperated robot outside its conformance volume is flagged as non-conforming, and its volume is recomputed from its current position. The system detects and warns; it does not resolve conflicts automatically.
+  \item[Communication to users] Shared 3D view: current positions, routes as 3D lines, hazard zones, and conflict markers. Operator view: a simulated onboard camera with the active route segment overlaid as a guidance line towards the next waypoint, plus conformance warnings. Shared mission timeline: one lane per robot showing segment time windows and conflicts.
+  \item[Standards] OGC 3D Tiles for the scene; robot systems and datastreams following the OGC API - Connected Systems resource model through lightweight endpoints; movement intent encoded with OGC Moving Features (JSON). Standards serve as the common data model of the system.
+  \item[Architecture] Web client (CesiumJS), shared state replicated with an existing CRDT library (Yjs) over WebSockets, and a server-side robot simulation.
+  \item[Evaluation] (a) Technical: synchronisation latency, conflict-detection time, and state convergence under concurrent edits. (b) User study: within-subjects comparison of the proposed interface against a baseline showing current robot positions only; about 8 operator pairs; the experimenter acts as commander with scripted mission changes; measures are logged coordination conflicts and route deviations, situation awareness (SART), workload (NASA-TLX), and task completion time.
+\end{description}
+
+\subsection{Out of Scope}
+\begin{itemize}
+  \item Real robots, real sensors, real video, and live 3D reconstruction.
+  \item Network robustness (R2) and adaptation of robot capabilities (R1).
+  \item Mid-mission switching between autonomous and teleoperated control.
+  \item Terrain-aware or dynamics-based reachability analysis.
+  \item Visual rendering of 4D volumes.
+%%  \item Automatic path planning or conflict resolution; waypoints are connected by straight segments.
+  \item Formal OGC compliance testing and production-grade OGC servers.
+  \item Field evaluation with first responders, and VR/AR interfaces.
+\end{itemize}
+
+%% Bibliography
+\newpage
+%% \bibliographystyle{ACM-Reference-Format}
+\bibliographystyle{unsrtnat}
+\bibliography{ReferencesV2}
+
+\end{document}
