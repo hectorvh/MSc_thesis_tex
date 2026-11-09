@@ -1,0 +1,177 @@
+\documentclass{article}
+
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[letterpaper]{geometry}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+\title{Behaviour-Derived 4D Uncertainty Volumes for Deconflicting and Replanning Mixed Teleoperated and Autonomous UAVs in Emergency Response}
+
+\author{Hector Valdes}
+\date{October 2026}
+
+\begin{document}
+
+\maketitle
+
+Keywords:
+unmanned aerial vehicles, teleoperation, strategic deconfliction, operational intent, human-in-the-loop, public safety.
+
+%% ------------------------------------------------------------------
+\section{Problem Definition}
+
+\subsection{Context of Emergency Response}
+Emergency response to medium- and large-scale incidents such as fires, floods, and earthquakes requires critical decisions under time pressure despite incomplete and uncertain information \cite{kruijff2021}.
+First responders increasingly employ robots in these situations, most often unmanned aerial vehicles (UAVs) \cite{kruijff2021, delmerico2019}.
+During the Notre-Dame de Paris fire of 15 April 2019, for example, the Paris Fire Brigade used commercial UAVs, including one with a thermal camera, to monitor the spread of the fire from the air \cite{nardi2019, peskoeyang2019}.
+In real deployments, these robots are operated along a spectrum ranging from direct teleoperation to semi-autonomous assistance functions, and each robot is typically assigned at least one dedicated human operator \cite{surmann2024}.
+
+\subsection{Mixed Autonomy in a Shared Airspace}
+Teleoperation under these conditions is mentally demanding and prone to operator error, which motivates greater robot autonomy \cite{kruijff2021}.
+However, unlike industrial settings, each emergency scenario is different and subject to unstructured terrain, variable lighting and weather, smoke, or collapsed structures, which limits the reliability of full autonomy and keeps humans in the loop \cite{kruijff2021, surmann2024, queralta2020}.
+Response teams therefore combine robots at different levels of autonomy: the German Rescue Robotics Center (DRZ) has developed fully autonomous UAV flight \cite{kruijff2021}, while in real deployments most robots are still teleoperated \cite{surmann2024}.
+Among the requirements the DRZ identified together with first responders are autonomous assistance functions that facilitate robot control and improved situation awareness for tactical and strategic mission planning \cite{kruijff2021}.
+Field deployments further call for map representations of trajectories and timeline calculations, and for dynamic projections when the situation changes \cite{surmann2024}.
+
+When autonomous and teleoperated UAVs fly in the same incident airspace, their future positions are known with very different certainty.
+The path of an autonomous UAV is known in advance.
+A teleoperated UAV follows its assigned route only approximately, because the operator flies through an egocentric camera view that narrows attention and makes it difficult to judge the robot's position relative to its surroundings \cite{thomas2001, hollands2011}.
+Its future position is therefore known only within a region around the route, and the size of this region depends on how the operator flies.
+The mission also changes during the operation: a commander may move waypoints or declare new hazard zones \cite{kruijff2021}, after which the paths of the autonomous UAVs must be recalculated so that they remain separated from the teleoperated UAVs and the hazards.
+
+\subsection{Situation Awareness in Multi-UAV Missions}
+With several UAVs in the same airspace, the teleoperator must know not only where their own UAV is, but also where the other UAVs are and where they will be.
+The DRZ Situation Awareness Interface displays the mission on a 3D map and allows responders to issue operational orders and monitor their execution \cite{kruijff2021}, yet field deployments identified the need to extend it with trajectories, timelines, and dynamic projections \cite{surmann2024}.
+An egocentric camera view supports local control but provides little information beyond the frame \cite{thomas2001, hollands2011}, whereas exocentric views, which use a frame of reference independent of any single robot, better support global spatial awareness \cite{pavlovic2009}, and 3D multi-robot interfaces have improved operator situation awareness \cite{roldan2017}.
+When the autonomous UAVs replan around a teleoperated UAV, the teleoperator must also be able to perceive these changes, understand why they happened, and anticipate the new paths, which correspond to the three levels of situation awareness \cite{endsley1995}.
+
+\subsection{Representing and Deconflicting Future Positions}
+In UAS traffic management (UTM), the future position of an aircraft is shared as an operational intent: a planned route enclosed in space-time (4D) volumes \cite{astmf3548}.
+Strategic conflict detection checks these volumes for intersections, and conformance monitoring detects when an aircraft leaves its volume \cite{astmf3548, dai2023conformance}.
+How large the volumes should be is an open question.
+Simulation studies of package delivery under wind uncertainty showed that larger fixed volumes do not always yield higher safety \cite{pradeep2025wind}, and probabilistic operational intents with confidence-based buffers have been proposed to size volumes from the expected deviation of an aircraft \cite{cardenas2024confidence}.
+
+Coordinating several agents in space and time is also studied as multi-agent path finding.
+Space-time reservation tables allow agents to plan around each other's reserved cells \cite{silver2005}, and the approach has been adapted to pre-flight conflict resolution in UTM \cite{ho2022mapf}.
+Plans that remain valid under a bounded number of delays \cite{atzmon2020robust}, under uncertain travel times \cite{shahar2021safe}, and under probabilistic UAV position uncertainty during flight \cite{chen2025inflight} have been proposed, together with online replanning during execution.
+
+%% ------------------------------------------------------------------
+\section{Knowledge Gap}
+Existing work sizes 4D volumes and plans under uncertainty that stems from wind, navigation error, or execution delays of autonomous or plan-following agents \cite{pradeep2025wind, cardenas2024confidence, atzmon2020robust, shahar2021safe, chen2025inflight}.
+It mostly addresses strategic deconfliction between independent operators before departure \cite{astmf3548, ho2022mapf}, and is evaluated with Monte Carlo or fast-time simulation.
+
+No study was found that derives the uncertainty volumes of a teleoperated UAV from observed operator behaviour, uses them to recalculate the paths of autonomous UAVs within a single mission team when a commander changes the plan or when the teleoperated UAV's volume intersects an autonomous UAV's volume, and evaluates this with human operators in the loop.
+It is therefore unknown whether behaviour-derived volumes improve separation and reduce unnecessary replanning compared with the fixed safety buffers commonly used in practice, and how the resulting replanning affects the teleoperator's situation awareness and workload in a multi-UAV mission.
+
+%% ------------------------------------------------------------------
+\section{Objective}
+The objective of this thesis is to design, implement, and evaluate a deconfliction and replanning system for a mission team of autonomous and teleoperated UAVs in emergency response.
+
+The commander assigns each UAV a route of 3D waypoints and defines hazard zones, both of which can be changed during the mission.
+Each UAV's movement intent is represented as a 4D volume following the operational intent model of ASTM F3548 \cite{astmf3548}: a corridor with time windows for autonomous UAVs, and an uncertainty volume around the active route segment for teleoperated UAVs, derived from recorded operator flights.
+The system recalculates the paths of the affected autonomous UAVs with an existing space-time planner \cite{silver2005} when (a) the commander changes a route or hazard zone, (b) a teleoperated UAV's behaviour-derived volume intersects the 4D volume of an autonomous UAV, or (c) a teleoperated UAV leaves its volume and its volume is recomputed from its current position.
+The teleoperator is guided along the route by a guidance line in the simulated onboard camera view, and a shared exocentric 3D view shows the current positions and planned paths of all UAVs, hazard zones, and replanning events.
+
+The thesis contributes to two of the requirements identified by first responders \cite{kruijff2021}: autonomous assistance functions, by keeping autonomous UAVs separated from teleoperated ones, and improved situation awareness, by maintaining up-to-date predictions of where and when each UAV will be and presenting them to the teleoperator to support situation awareness in a multi-UAV mission.
+
+%% ------------------------------------------------------------------
+\section{Research Questions}
+\textbf{Main research question:} How can 4D uncertainty volumes derived from observed teleoperator behaviour be used to deconflict and replan autonomous UAVs that share a mission airspace with teleoperated UAVs, and how does this compare with fixed safety buffers?
+
+\begin{enumerate}[label=\textbf{RQ\arabic*}]
+  \item How can the deviation of teleoperated UAVs from their assigned routes be modelled from recorded operator flights as time-dependent 4D uncertainty volumes, and expressed as operational intents compatible with ASTM F3548?
+  \item How can these volumes be kept up to date through conformance monitoring, intersections with autonomous UAV volumes, and commander plan changes during a mission, and the paths of autonomous UAVs be recalculated in time?
+  \item Compared with fixed safety buffers, how do behaviour-derived volumes affect loss of separation, unnecessary replanning of the autonomous UAV, task performance, situation awareness, and workload when a human teleoperator shares the airspace with an autonomous UAV?\end{enumerate}
+
+%% ------------------------------------------------------------------
+\section{Methodology}
+
+\subsection{Behaviour Model}
+In a pilot study, participants fly the teleoperated UAV along predefined routes in the simulator.
+From the recorded flights, the cross-track, vertical, and along-track deviation from the active route segment is extracted as a function of time since the segment became active.
+Empirical quantiles of these deviations define the size of the uncertainty volume over time; a chosen quantile sets the conformance level, analogous to the conformance requirement of operational intents \cite{astmf3548}.
+The model is fitted on pilot-study data only and evaluated on the separate participants of the main study.
+
+\subsection{Deconfliction and Replanning}
+Airspace is discretised into a space-time reservation table \cite{silver2005}.
+Teleoperated UAVs reserve their uncertainty volumes, hazard zones are reserved for all times, and autonomous UAVs plan with space-time A* around existing reservations using prioritised planning.
+Replanning of the autonomous UAVs is triggered by three events: (a) commander edits to routes or hazard zones; (b) an intersection between a teleoperated UAV's behaviour-derived volume, which grows over time, and the reserved 4D volume of an autonomous UAV; and (c) non-conformance, when a teleoperated UAV leaves its volume, after which its volume is recomputed from its current position.
+Each replanning event is logged with its trigger so that the share of replans caused by each trigger can be analysed.
+Replanning strategies (replanning all autonomous UAVs or only the affected ones) are compared as a design decision in the technical evaluation.
+
+\subsection{Evaluation}
+\textbf{User study (RQ3).} Within-subjects design with two counterbalanced conditions: fixed safety buffer and behaviour-derived volume.
+Each participant teleoperates one UAV with a gamepad along a commander-set route while one autonomous UAV operates in the same area.
+Commander edits (moved waypoints, new hazard zones) are scripted so that all participants experience the same events.
+Measures: minimum separation and loss-of-separation events, number of autonomous replans caused by the teleoperated UAV (by trigger), route deviation, task completion time, situation awareness (SART) \cite{taylor1990}, and workload (NASA-TLX) \cite{hart1988}.
+About 12--16 participants are planned.
+
+\textbf{Technical evaluation in simulation (RQ2).} Batch experiments vary the number of UAVs, the ratio of teleoperated to autonomous UAVs, the frequency of commander edits, and operator deviation.
+Teleoperated UAVs replay deviation profiles sampled from the recorded human flights.
+Measures: replanning time, number of rerouted UAVs and replans per trigger, loss-of-separation events, total reserved airspace volume, and mission completion time.
+
+%% ------------------------------------------------------------------
+\section{Work Plan}
+
+The thesis is planned for 26 weeks, including two buffer weeks. Writing runs in parallel with development so that the final weeks are reserved for results, discussion, and revision.
+
+\begin{table}[h]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.2cm}@{}}
+\toprule
+\textbf{Weeks} & \textbf{Phase} & \textbf{Tasks} & \textbf{Milestone} \\
+\midrule
+1-3 & Foundations & Finalise literature review; define requirements and architecture; operational intent data model following ASTM F3548; draft study design; submit ethics application & Architecture agreed with supervisors; ethics submitted \\
+4-8 & Simulator & Web-based 3D client; kinematic UAV simulation; gamepad teleoperation; simulated onboard camera view with guidance line; shared exocentric 3D view; commander route and hazard-zone editing; flight logging & Teleoperation usability check with 2-3 colleagues \\
+9-10 & Behaviour model & Pilot study with about 6 participants; extraction of route deviations; derivation of uncertainty volumes & Behaviour model available \\
+11-13 & Deconfliction & Space-time reservation table; volume intersection and conformance monitoring; space-time A* replanning of autonomous UAVs; fixed-buffer baseline; draft system chapter & Feature freeze (week 13) \\
+14 & Buffer & Bug fixing and catch-up & -- \\
+15-17 & Evaluation preparation & Batch simulation framework and runs; scripted study scenario; 2-3 pilot sessions; finalise protocol; start recruitment; draft methods chapter & Simulation results; ethics approval; study ready \\
+18-21 & User study & 12-16 participants (about 45 minutes each); data cleaning in parallel & Data collection complete \\
+22 & Analysis & Statistical analysis of separation, replans, route deviation, completion time, SART, and NASA-TLX & Results available \\
+23-25 & Writing & Results, discussion, and conclusion; full draft to supervisors in week 23; revision based on feedback & Full draft (week 23) \\
+26 & Buffer & Final formatting and submission & Thesis submitted \\
+\bottomrule
+\end{tabularx}
+\caption{Work plan for the 26-week thesis.}
+\label{tab:workplan}
+\end{table}
+
+%% ------------------------------------------------------------------
+\section{Scope and Delimitations}
+
+\subsection{In Scope}
+\begin{description}[style=nextline]
+  \item[Scenario] One simulated incident site, provided as a static, simplified 3D scene with obstacles.
+  \item[UAVs] Simulated multirotor UAVs with simple kinematic models (maximum speed, climb rate). User study: one teleoperated UAV flown by the participant and one autonomous UAV. Simulation: multiple teleoperated and autonomous UAVs.
+  \item[Roles] One teleoperator (the participant) and one mission commander, whose route and hazard-zone edits are scripted by the experimenter.
+  \item[Routes] The commander defines a route of 3D waypoints for every UAV. A waypoint counts as reached when the UAV enters its acceptance radius, after which the next segment becomes active.
+  \item[Movement intent] Autonomous UAVs: corridor around the planned trajectory with time windows derived from the planned speed. Teleoperated UAVs: uncertainty volume around the active route segment that grows with time according to the behaviour model and is reset when a waypoint is reached or non-conformance is detected. Volumes follow the operational intent data model of ASTM F3548.
+  \item[Deconfliction and replanning] Intersection tests between volumes and with hazard zones. Autonomous UAVs are replanned automatically with an existing space-time planner when (a) the commander edits a route or hazard zone, (b) a teleoperated UAV's behaviour-derived volume intersects an autonomous UAV's 4D volume, or (c) a teleoperated UAV becomes non-conforming. Teleoperated UAVs are not replanned automatically; their operators receive the updated route.
+  \item[Situation awareness] Simulated onboard camera view with the active route segment overlaid as a guidance line and a non-conformance warning, plus a shared exocentric 3D view of all UAVs' current positions, planned paths, hazard zones, and replanning events, so that the teleoperator can follow the multi-UAV mission. Volumes are used internally and are not rendered.
+  \item[Evaluation] User study comparing fixed buffers with behaviour-derived volumes, including situation awareness (SART) and workload (NASA-TLX), and batch simulations for the technical evaluation of replanning.
+\end{description}
+
+\subsection{Out of Scope}
+\begin{itemize}
+  \item Real UAVs, real sensors, real video, and live 3D reconstruction.
+  \item Unmanned ground vehicles.
+  \item Multi-operator collaboration and real-time synchronisation of shared state between several clients.
+  \item Open geospatial standards (OGC) and interoperability beyond the ASTM F3548 operational intent model; no connection to a live UTM/U-space service.
+  \item Navigation and sensing error: the simulator knows each UAV's current position exactly; uncertainty concerns only the future position of teleoperated UAVs.
+  \item New path-planning algorithms and formal safety guarantees or collision-risk certification.
+  \item Tactical collision avoidance (detect-and-avoid) and mid-mission switching between autonomous and teleoperated control.
+  \item Visual rendering of 4D volumes, and VR/AR interfaces.
+  \item Network robustness, adaptation of the operational capabilities of robotic platforms, and field evaluation with first responders.
+\end{itemize}
+
+%% Bibliography
+\newpage
+\bibliographystyle{unsrtnat}
+\bibliography{ReferencesV2,ReferencesV2lite}
+
+\end{document}

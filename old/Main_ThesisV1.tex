@@ -1,0 +1,119 @@
+\documentclass{article}
+
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[letterpaper]{geometry}
+\usepackage{enumitem}
+\usepackage{graphicx} % Required for inserting images
+
+\title{A Standards-Based Collaborative 3D Interface for Planning and Coordinating Multi-Operator UAV and UGV Missions in Emergency Response}
+
+\author{Hector Valdes}
+\date{October 2026}
+
+
+
+\begin{document}
+
+\maketitle
+
+Keywords:
+ground and aerial robots, human–robot interaction, public safety, rescue robotics.
+
+\section{Problem Definition}
+
+\subsection{Context of Emergency Response}
+Emergency response to medium- and large-scale incidents such as fires, floods, and earthquakes requires critical decisions under time pressure despite incomplete and uncertain information \cite{kruijff2021}.
+First responders increasingly employ robots in these situations, most often unmanned aerial vehicles (UAVs) and, less frequently, unmanned ground vehicles (UGVs) \cite{kruijff2021, delmerico2019}.
+A prominent example is the Notre-Dame de Paris fire of 15 April 2019, where the Paris Fire Brigade used commercial UAVs, including one with a thermal camera, to monitor the spread of the fire from the air, while a remotely piloted firefighting UGV entered the cathedral to deliver water to the burning interior \cite{nardi2019, peskoeyang2019}.
+In real deployments, these robots are operated along a spectrum ranging from direct teleoperation to semi-autonomous assistance functions, and each robot is typically assigned at least one dedicated human operator, often supported by additional roles such as safety officers or camera co-pilots \cite{surmann2024}.
+
+\subsection{Differences from Industrial Robotic Settings}
+Teleoperation under these conditions is mentally demanding and prone to operator error, which motivates greater robot autonomy \cite{kruijff2021}.
+However, unlike industrial settings, each emergency scenario is different and subject to unstructured terrain, variable lighting and weather, smoke, or collapsed structures \cite{kruijff2021}.
+This limits the reliability of full autonomy and keeps humans in the loop \cite{surmann2024, queralta2020}.
+Consequently, response teams deploy several UAVs and UGVs, primarily to carry out reconnaissance of the incident site and increase situation awareness \cite{kruijff2021}.
+Field deployments show that their operators must work together, for instance when one robot provides an external view to guide another through a damaged structure \cite{surmann2024}.
+
+\subsection{Requirements Identified by First Responders}
+Within the A-DRZ project, the German Rescue Robotics Center (DRZ) addresses the following requirements for robot-assisted emergency response, identified together with first responders \cite{kruijff2021}:
+\begin{enumerate}[label=\textbf{R\arabic*}]
+  \item Adaptation of the operational capabilities of robotic platforms;
+  \item Robust network connectivity;
+  \item Autonomous assistance functions facilitating robot control;
+  \item Improved situation awareness for strategic and tactical mission planning;
+  \item Integration of human-robot teams into the first responders' mission command structure.
+\end{enumerate}
+For R4, the DRZ developed a Situation Awareness Interface (SAI) that displays the mission on a 3D map backed by building models and robot sensor data, and allows responders to issue operational orders to robotic units and monitor their execution \cite{kruijff2021}.
+Field deployments, however, identified the need to extend the SAI with map representations of trajectories and timeline calculations, integration of data from multiple sources, and dynamic projections for changing situations \cite{surmann2024}.
+Network connectivity (R2) is addressed at the link level by multi-connectivity solutions such as SKATES \cite{kruijff2021}.
+Three problems nevertheless persist between these requirements and current practice: limited situation awareness from egocentric views (R4), the lack of a common representation of where robots with different levels of autonomy will be (R3), and coordination between operators (R4, R5).
+Underlying all of these is the limited interoperability between robots and interfaces from different providers.
+
+\subsubsection{Situation Awareness (R4)}
+Operators perceive the scene mainly through the onboard camera of their own robot.
+This egocentric view supports local control but narrows attention and makes it difficult to judge where the robot is and what lies beyond the frame \cite{thomas2001, riley2004, hollands2011}.
+Exocentric views, which use a frame of reference independent of any single robot, better support global spatial awareness \cite{wickens1995, pavlovic2009}, and immersive 3D multi-robot interfaces have improved operator situation awareness \cite{roldan2017}.
+Recent shared interfaces for multi-operator, multi-robot teams improved coordination, situation awareness, and task performance (kenan2026, adekoya2026); however, they were evaluated in simulated or laboratory settings rather than under field conditions.
+
+\subsubsection{Heterogeneous Autonomy (R3)}
+Response teams combine robots at different levels of autonomy: the DRZ has developed fully autonomous UAV flight in GNSS-denied environments alongside UGVs operated with sliding autonomy \cite{kruijff2021}, while in real deployments most robots are still teleoperated \cite{surmann2024}.
+The future path of an autonomous robot is known in advance, whereas that of a teleoperated robot is only known as a region it may reach.
+Interfaces such as the SAI show where robots are, but not where and when each robot will be, which is the trajectory and timeline information that field deployments call for \cite{surmann2024}.
+Space-time volumes are an established way to represent such intent in UAS traffic management \cite{astmf3548} and multi-agent path planning \cite{silver2005}.
+
+\subsubsection{Coordination Between Operators (R4, R5)}
+Multi-operator control of robot teams requires not only access to the same mission information, but also shared situation awareness in a changing scene \cite{endsley2001team} and mechanisms for preventing conflicting interventions between operators \cite{music2017control}.
+To divide the area, avoid conflicting movements, and hand over tasks, each operator needs to know where the other robots are, what they see, and what they are doing \cite{gutwin2002workspace, drury2003awareness}.
+The mission also changes during the operation: robot tasks must be reassigned \cite{kruijff2021}, and every operator must be aware of such changes.
+In current deployments, this awareness is built verbally and through ad hoc role assignment \cite{burke2004, surmann2024}, and communication overhead adds workload in time-critical tasks.
+Since team organization directly affects performance \cite{lewis2010teams}, Surmann et al.\ call for explicit planning of command structures and role assignment in mission planning \cite{surmann2024}.
+When shared awareness breaks down, operators may duplicate or miss search areas and issue conflicting commands.
+Recent work prevents conflicting commands through per-robot control leases (adekoya2026); however, leases govern who controls a robot, not whether the planned paths of different robots conflict.
+
+\subsubsection{Interoperability}
+Beyond the individual requirements, robots in a response team come from
+different manufacturers and research groups \cite{kruijff2021, surmann2024},
+and field deployments call for the integration of data from multiple sources
+into the operational picture \cite{surmann2024}.
+Without common data formats, each new robot or interface requires a custom
+integration.
+Open geospatial standards for describing connected sensor systems and for
+streaming large 3D scenes already exist \cite{ogc23001, ogc3dtiles}, and
+their combination has been demonstrated in industry to stream live sensor
+data into 3D scenes \cite{georobotix2026}.
+
+
+\section{Knowledge Gap}
+Shared interfaces for multi-operator, multi-robot teams improve coordination and situation awareness (kenan2026, adekoya2026), but they show where robots are, not where and when they will be.
+They prevent conflicting commands to the same robot through control leases (adekoya2026), but do not detect conflicts between the planned paths of different robots, and they have been evaluated in simulated or laboratory settings.
+In emergency response, the DRZ Situation Awareness Interface supports operational orders on a 3D map \cite{kruijff2021}, yet field deployments call for trajectory and timeline representations that it does not provide \cite{surmann2024}.
+
+Space-time volumes are used to deconflict autonomous aircraft in UAS traffic management \cite{astmf3548} and agents in cooperative path planning \cite{silver2005}, but these approaches assume that each agent's future path is known.
+No study was found that represents the planned movement of both autonomous and teleoperated robots, in the air and on the ground, as 4D volumes in a shared interface for human operators, that keeps these volumes up to date when a commander changes the plan during a mission, or that evaluates the effect on operator coordination.
+Likewise, no study was found that applies open geospatial standards for live sensor data and 3D scenes \cite{ogc23001, ogc3dtiles} to multi-operator robot supervision.
+Finally, work on replicated shared 3D scenes has evaluated technical performance only and calls for user studies \cite{dantas2025}.
+
+\section{Objective}
+The objective of this thesis is to design, implement, and evaluate a web-based, standards-based collaborative 3D interface in which a mission commander and several robot operators jointly plan and coordinate missions of heterogeneous UAVs and UGVs.
+The interface represents the planned movement of each robot, whether autonomous or teleoperated, as a 4D (space-time) volume in order to detect conflicts and make them visible to all roles, including when the plan changes during the mission.
+
+The thesis contributes to requirements R3, R4, and R5: it provides assistance for robot control through planned paths and conflict warnings (R3), a shared exocentric view of current and planned robot movement (R4), and role-based interaction between the mission commander and the operators (R5). In addition, it addresses interoperability by building on open geospatial standards.
+
+\section{Research Questions}
+\textbf{Main research question:} How can a standards-based collaborative 3D interface represent the planned movement of mixed-autonomy UAV and UGV teams as 4D volumes, and how does this representation support multi-operator planning and coordination in emergency response?
+
+\begin{enumerate}[label=\textbf{RQ\arabic*}]
+  \item How can the planned movement of autonomous and teleoperated robots be represented as 4D volumes using open geospatial standards?
+  \item How can conflicts between these volumes be detected and communicated to the commander and the operators, including after changes to waypoints or hazard zones during a mission?
+  \item What system architecture keeps the shared 3D scene and its volumes consistent across all roles in real time?
+  \item Compared with a shared 3D view showing only current robot positions, how does the 4D volume interface affect coordination conflicts, situation awareness, and workload in a simulated emergency response scenario?
+\end{enumerate}
+
+
+%% Bibliography
+\newpage
+%% \bibliographystyle{ACM-Reference-Format}
+\bibliographystyle{unsrtnat}
+\bibliography{Version1_october/ReferencesV2}
+
+\end{document}
