@@ -1,0 +1,59 @@
+\documentclass{article}
+
+\usepackage[letterpaper]{geometry}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{booktabs}
+
+%% Companion to Main_ThesisV5-02.tex (24 Nov 2026): Work Plan and Scope, moved out of the main proposal.
+%% Out of Scope and Future Work were removed in V5-02 and are kept in notes only.
+
+\title{Work Plan and Scope\\\large Task-Driven Integration of Drone, Sensor and Geodata Streams across Egocentric and Allocentric Views for Decision Support in Emergency Response}
+
+\author{Hector Valdes}
+\date{November 2026}
+
+\begin{document}
+
+\maketitle
+
+%% ------------------------------------------------------------------
+\section{Work Plan}
+
+The thesis is planned for 26 weeks, including two buffer weeks. Writing runs in parallel with development so that the final weeks are reserved for results, discussion, and revision.
+
+\begin{table}[h]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.2cm}@{}}
+\toprule
+\textbf{Weeks} & \textbf{Phase} & \textbf{Tasks} & \textbf{Milestone} \\
+\midrule
+1-4 & Requirements & Literature on decision processes; interviews with practitioners via DRZ; task model; requirements list by role (information, visualization, integration); draft study design; submit ethics application & Requirements agreed with supervisor; ethics submitted \\
+5-6 & Set-up & Choose information sources; prepare scene, geodata, and video or simulation; define tasks for the evaluation & Set-up fixed \\
+7-12 & Integration system & Ingest and event store; event extraction (persons, hotspots, change); georeferencing; cross-view rendering in map, 3D model, and video; role-based configuration; draft system chapter & Feature freeze (week 12) \\
+13 & Buffer & Bug fixing and catch-up & -- \\
+14-16 & Evaluation preparation & Technical evaluation (projection error, delay, update rate); baseline conditions; scripted scenarios; 2-3 pilot sessions; recruitment; draft methods chapter & Technical results; ethics approval; study ready \\
+17-20 & User study & Sessions with participants; data cleaning in parallel & Data collection complete \\
+21-22 & Analysis & Statistical analysis of correctness, time, and workload per task and view configuration & Results available \\
+23-25 & Writing & Results, discussion, and conclusion; full draft to supervisor in week 23; revision based on feedback & Full draft (week 23) \\
+26 & Buffer & Final formatting and submission & Thesis submitted \\
+\bottomrule
+\end{tabularx}
+\caption{Work plan for the 26-week thesis.}
+\label{tab:workplan}
+\end{table}
+
+%% ------------------------------------------------------------------
+\section{Scope}
+
+\begin{description}[style=nextline]
+  \item[Requirements] Requirements of first responders for two to three decision tasks, at the hierarchy levels identified in Step 1, grouped by role.
+  \item[Set-up] One incident scenario with one or two UAVs (RGB and thermal), existing geodata, and one additional sensor stream.
+  \item[Events] Detected persons, fire hotspots, and changes such as water level, extracted with existing detectors and simple thresholds.
+  \item[Views] Egocentric drone video and allocentric map and 3D model, linked in both directions.
+  \item[Evaluation] Technical evaluation of projection error, delay, and update rate; user study comparing view configurations on the defined tasks.
+\end{description}
+
+\end{document}
